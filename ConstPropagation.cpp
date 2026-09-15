@@ -242,8 +242,9 @@ void ConstPropagation::propagateVariable(Value* Variable){
     }
 }
 
-void ConstPropagation::modifyIR(){
+bool ConstPropagation::modifyIR(){
     std::unordered_map<Value*, Value*> VariablesMap;
+    bool changed = false;
 
     for(ConstPropagationInstruction* CPI_instance : Instructions){
         if(isa<LoadInst>(CPI_instance->getInstruction())){
@@ -259,6 +260,7 @@ void ConstPropagation::modifyIR(){
                 int Value = CPI_instance->getValueBefore(VariablesMap[Instr->getOperand(0)]);
                 ConstantInt* ConstInt = ConstantInt::get(Type::getInt32Ty(Instr->getContext()), Value);
                 Instr->getOperand(0)->replaceAllUsesWith(ConstInt);
+                changed = true;
             }
         }
         else if(isa<BinaryOperator>(Instr) || isa<ICmpInst>(Instr) ){
@@ -272,13 +274,21 @@ void ConstPropagation::modifyIR(){
             if(RightToVar != nullptr && CPI_instance->getStatusBefore(RightToVar)==Const)
                 NewValueRight = ConstantInt::get(Type::getInt32Ty(Instr->getContext()), CPI_instance->getValueBefore(RightToVar));
 
-            if(NewValueLeft != nullptr)
+            if(NewValueLeft != nullptr) {
                 Left->replaceAllUsesWith(NewValueLeft);
+                changed = true;
+            }
 
-            if(NewValueRight != nullptr)
+
+            if(NewValueRight != nullptr) {
                 Right->replaceAllUsesWith(NewValueRight);
+                changed = true;
+            }
+
         }
     }
+
+    return changed;
 }
 
 bool ConstPropagation::runOnFunction(Function &F){
@@ -295,10 +305,7 @@ bool ConstPropagation::runOnFunction(Function &F){
         propagateVariable(Variable);
     }
 
-    modifyIR();
-
-
-    return true;
+    return modifyIR();
 }
 
 char ConstPropagation::ID = 0;

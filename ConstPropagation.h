@@ -52,7 +52,7 @@ private:
     void applyRule8(ConstPropagationInstruction* CPI_instance, Value* Variable);
 
     void propagateVariable(Value* Variable);
-    void modifyIR();
+    bool modifyIR();
 
 public:
   static char ID; // Pass identification, replacement for typeid

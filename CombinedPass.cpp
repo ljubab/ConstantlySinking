@@ -13,12 +13,16 @@ namespace {
     bool Changed = false;
 
     bool runOnFunction(Function &F) override {
-        CodeSinking *CD = new CodeSinking();
-        ConstPropagation *CP = new ConstPropagation();
         bool changed = false;
+
+        CodeSinking *CD = nullptr;
+        ConstPropagation *CP = nullptr;
 
         while(true) {
             bool IRChanged = false;
+
+            CD = new CodeSinking();
+            CP = new ConstPropagation();
 
             if(CD->runOnFunction(F)) {
                 IRChanged = true;
@@ -29,6 +33,9 @@ namespace {
                 IRChanged = true;
                 changed = true;
             }
+
+            delete CD;
+            delete CP;
 
             if(!IRChanged) break;
         }
