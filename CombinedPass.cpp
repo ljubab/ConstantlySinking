@@ -2,6 +2,7 @@
 #include "llvm/Pass.h"
 #include "CodeSinking.h"
 #include "ConstPropagation.h"
+#include "ConstantFolding.h"
 
 using namespace llvm;
 
@@ -17,12 +18,14 @@ namespace {
 
         CodeSinking *CD = nullptr;
         ConstPropagation *CP = nullptr;
+        ConstantFolding *CF = nullptr;
 
         while(true) {
             bool IRChanged = false;
 
             CD = new CodeSinking();
             CP = new ConstPropagation();
+            CF = new ConstantFolding();
 
             if(CD->runOnFunction(F)) {
                 IRChanged = true;
@@ -34,8 +37,14 @@ namespace {
                 changed = true;
             }
 
+            if(CF->runOnFunction(F)) {
+                IRChanged = true;
+                changed = true;
+            }
+
             delete CD;
             delete CP;
+            delete CF;
 
             if(!IRChanged) break;
         }

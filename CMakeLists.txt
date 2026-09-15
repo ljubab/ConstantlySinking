@@ -3,6 +3,7 @@ add_llvm_library( LLVMConstantlySinking MODULE BUILDTREE_ONLY
   CodeSinking.cpp
   ConstPropagation.cpp
   ConstPropagationInstruction.cpp
+  ConstantFolding.cpp
 
   DEPENDS
   intrinsics_gen

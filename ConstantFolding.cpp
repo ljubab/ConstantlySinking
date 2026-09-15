@@ -1,12 +1,17 @@
 #include "ConstantFolding.h"
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Constants.h"
+#include "llvm/IR/Instructions.h"
 #include "llvm/IR/Operator.h"
 #include "llvm/IR/Function.h"
 
 char ConstantFolding::ID = 0;
 
 bool ConstantFolding::handleBinaryOperator(Instruction &I) {
+    if(!isa<BinaryOperator>(&I)) {
+        return false;
+    }
+
     Value *Lhs = I.getOperand(0), *Rhs = I.getOperand(1);
     ConstantInt *LhsVal, *RhsVal;
     int Val;
@@ -45,11 +50,19 @@ bool ConstantFolding::handleBinaryOperator(Instruction &I) {
 
 bool ConstantFolding::runOnFunction(Function &F) {
     bool changed = false;
+    std::vector<Instruction*> forDelete;
+
     for(BasicBlock &BB : F) {
         for(Instruction &I : BB) {
-            changed |= handleBinaryOperator(I);
+            if(handleBinaryOperator(I)) {
+                changed = true;
+                forDelete.push_back(&I);
+            }
         }
     }
+
+    for(Instruction *I : forDelete)
+        I->eraseFromParent();
 
     return changed;
 }
