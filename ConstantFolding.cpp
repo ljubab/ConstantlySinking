@@ -88,6 +88,32 @@ bool ConstantFolding::handleIcmp(Instruction &I) {
     return true;
 }
 
+bool ConstantFolding::handleBranch(Instruction &I) {
+    BranchInst *BranchInstr = dyn_cast<BranchInst>(&I);
+    if(!BranchInstr) {
+        return false;
+    }
+
+    if(!BranchInstr->isConditional()) {
+        return false;
+    }
+
+    ConstantInt *Condition = dyn_cast<ConstantInt>(BranchInstr->getCondition());
+    if(!Condition) {
+        return false;
+    }
+
+    if(Condition->getZExtValue() == 1) {
+        BranchInst::Create(BranchInstr->getSuccessor(0), BranchInstr->getParent());
+    } else if(Condition->getZExtValue() == 0) {
+        BranchInst::Create(BranchInstr->getSuccessor(1), BranchInstr->getParent());
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
 bool ConstantFolding::runOnFunction(Function &F) {
     bool changed = false;
     std::vector<Instruction*> forDelete;
@@ -98,6 +124,9 @@ bool ConstantFolding::runOnFunction(Function &F) {
                 changed = true;
                 forDelete.push_back(&I);
             } else if(handleIcmp(I)) {
+                changed = true;
+                forDelete.push_back(&I);
+            } else if(handleBranch(I)) {
                 changed = true;
                 forDelete.push_back(&I);
             }
