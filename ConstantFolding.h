@@ -9,6 +9,7 @@ using namespace llvm;
 class ConstantFolding : public FunctionPass {
 private:
   bool handleBinaryOperator(Instruction &I);
+  bool handleIcmp(Instruction &I);
 public:
   static char ID; // Pass identification, replacement for typeid
   ConstantFolding() : FunctionPass(ID) {}
