@@ -55,4 +55,4 @@ namespace {
 }
 
 char CombinedPass::ID = 0;
-static RegisterPass<CombinedPass> X("combined-pass", "Our combined pass");
+static RegisterPass<CombinedPass> X("constantly-sinking", "Our constantly sinking");
