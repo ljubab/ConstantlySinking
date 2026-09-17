@@ -292,9 +292,6 @@ bool ConstPropagation::modifyIR(){
 }
 
 bool ConstPropagation::runOnFunction(Function &F){
-    Instructions.clear();
-    Variables.clear();
-
     findAllInstructions(F);
     findAllVariables(F);
 
