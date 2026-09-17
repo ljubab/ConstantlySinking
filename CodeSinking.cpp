@@ -86,6 +86,9 @@ bool CodeSinking::runOnFunction(Function &F) {
         if(isa<AllocaInst>(CurrInst) || isa<BranchInst>(CurrInst) || isa<ReturnInst>(CurrInst))
             continue;
 
+        if(CurrInst->mayHaveSideEffects())
+            continue;
+
         BasicBlock *Dest = getDestination(*CurrInst, IfBlock, ElseBlock);
 
         if(!Dest)
