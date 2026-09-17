@@ -9,11 +9,10 @@
 using namespace llvm;
 
 class CodeSinking : public FunctionPass {
-private:
-  BasicBlock* getDestination(Instruction &I, BasicBlock *IfBlock, BasicBlock *ElseBlock);
 public:
   static char ID; // Pass identification, replacement for typeid
   CodeSinking() : FunctionPass(ID) {}
+  BasicBlock* getDestination(Instruction &I, BasicBlock *IfBlock, BasicBlock *ElseBlock);
   bool runOnFunction(Function &F) override;
 };
 
